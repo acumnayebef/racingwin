@@ -4,10 +4,20 @@ on:
   workflow_dispatch:
 jobs:
   dylib:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - run: make
+      - name: Build dylib
+        run: |
+          mkdir -p build
+          xcrun --sdk iphoneos clang++ -arch arm64 \
+            -isysroot "$(xcrun --sdk iphoneos --show-sdk-path)" \
+            -miphoneos-version-min=14.0 -std=gnu++20 -fobjc-arc -O2 \
+            -fvisibility=hidden -dynamiclib \
+            -install_name @rpath/XantaMenu.dylib \
+            -framework UIKit -framework Foundation -framework QuartzCore -framework CoreGraphics \
+            src/cheats.cpp src/il2cpp.cpp src/entry.mm src/menu.mm \
+            -o build/XantaMenu.dylib
       - run: file build/XantaMenu.dylib && otool -L build/XantaMenu.dylib
       - uses: actions/upload-artifact@v4
         with:
