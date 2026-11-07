@@ -32,11 +32,11 @@ static NSDictionary<NSString*, NSArray<NSString*>*>* XStrings() {
             @"currency.setok":   @[ @"✓ баланс выставлен", @"✓ balance set", @"✓ تم ضبط الرصيد" ],
 
             @"cars.title": @[ @"МАШИНЫ", @"CARS", @"السيارات" ],
-            @"cars.hint":  @[ @"Разблокирует все машины через встроенный метод игры. Жми эту кнопку на главном экране, до захода в «Тачки» — иначе игра ещё не создала нужный объект.",
-                               @"Unlocks every car via the game's own built-in method. Press this on the main menu screen, before opening \"Cars\" — otherwise the game hasn't created the object yet.",
-                               @"يفتح جميع السيارات عبر وظيفة اللعبة المدمجة. اضغط هذا في الشاشة الرئيسية قبل فتح \"السيارات\"، وإلا فلم يُنشئ اللعبة الكائن المطلوب بعد." ],
-            @"cars.button": @[ @"РАЗБЛОКИРОВАТЬ ВСЕ", @"UNLOCK ALL CARS", @"فتح كل السيارات" ],
-            @"cars.ok":     @[ @"✓ все машины разблокированы", @"✓ all cars unlocked", @"✓ تم فتح كل السيارات" ],
+            @"cars.hint":  @[ @"Открой любую машину в магазине (чтобы игра выбрала её текущей), затем нажми кнопку — она будет куплена и появится в гараже.",
+                               @"Open any car's page in the shop (so the game marks it as selected), then press the button — it will be purchased and appear in the garage.",
+                               @"افتح صفحة أي سيارة في المتجر (ليتم تحديدها في اللعبة)، ثم اضغط الزر — سيتم شراؤها وستظهر في المرآب." ],
+            @"cars.button": @[ @"КУПИТЬ МАШИНУ", @"BUY CAR", @"شراء السيارة" ],
+            @"cars.ok":     @[ @"✓ машина куплена и в гараже", @"✓ car purchased and in garage", @"✓ تم شراء السيارة وهي في المرآب" ],
 
             @"creators.label":  @[ @"TELEGRAM-КАНАЛ", @"TELEGRAM CHANNEL", @"قناة تيليجرام" ],
             @"creators.blurb":  @[ @"Официальный канал автора.", @"Official channel of the author.",

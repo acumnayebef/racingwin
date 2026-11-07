@@ -37,6 +37,30 @@ Result Run(Currency c, const char* method, int argc, int arg) {
     r.ok = true;
     return r;
 }
+
+bool SelectedCar(void*& car, std::string& err) {
+    void* ck = il2::FindClass(cfg::kCarsNs, cfg::kCarsData, err);
+    if (!ck) return false;
+    void* gi = il2::FindMethod(ck, cfg::kGetInstance, 0, err);
+    if (!gi) return false;
+    void* data = nullptr;
+    if (!il2::Invoke(gi, nullptr, nullptr, &data, err)) return false;
+    if (!data) { err = "CarsData.Instance is null"; return false; }
+    void* gc = il2::FindMethod(il2::ObjectClass(data), cfg::kGetSelectedCar, 0, err);
+    if (!gc) return false;
+    if (!il2::Invoke(gc, data, nullptr, &car, err)) return false;
+    if (!car) { err = "no car selected (open its page in the shop first)"; return false; }
+    return true;
+}
+
+bool SetBoolProp(void* obj, const char* method, bool value, std::string& err) {
+    void* m = il2::FindMethod(il2::ObjectClass(obj), method, 1, err);
+    if (!m) return false;
+    bool v = value;
+    void* args[1] = {&v};
+    void* ret = nullptr;
+    return il2::Invoke(m, obj, args, &ret, err);
+}
 }  // namespace
 
 bool Validate(std::string& err) {
@@ -49,28 +73,21 @@ bool Validate(std::string& err) {
     if (!base || !il2::FindMethod(base, cfg::kEarn, 1, err) ||
         !il2::FindMethod(base, cfg::kSet, 1, err) || !il2::FindMethod(base, cfg::kGet, 0, err))
         return false;
-    void* mm = il2::FindClass(cfg::kMainMenuNs, cfg::kMainMenuHandler, err);
-    return mm && il2::FindMethod(mm, cfg::kGetInstance, 0, err) &&
-           il2::FindMethod(mm, cfg::kUnlockAllCars, 0, err);
+    void* ck = il2::FindClass(cfg::kCarsNs, cfg::kCarsData, err);
+    return ck && il2::FindMethod(ck, cfg::kGetInstance, 0, err) &&
+           il2::FindMethod(ck, cfg::kGetSelectedCar, 0, err);
 }
 
 Result GetBalance(Currency c)            { return Run(c, cfg::kGet, 0, 0); }
 Result SetBalance(Currency c, int value) { return Run(c, cfg::kSet, 1, value); }
 Result Earn(Currency c, int value)       { return Run(c, cfg::kEarn, 1, value); }
 
-Result UnlockAllCars() {
+Result BuyCar() {
     Result r;
-    void* mk = il2::FindClass(cfg::kMainMenuNs, cfg::kMainMenuHandler, r.msg);
-    if (!mk) return r;
-    void* gi = il2::FindMethod(mk, cfg::kGetInstance, 0, r.msg);
-    if (!gi) return r;
-    void* inst = nullptr;
-    if (!il2::Invoke(gi, nullptr, nullptr, &inst, r.msg)) return r;
-    if (!inst) { r.msg = "HR_MainMenuHandler.Instance is null (open the main menu first)"; return r; }
-    void* m = il2::FindMethod(il2::ObjectClass(inst), cfg::kUnlockAllCars, 0, r.msg);
-    if (!m) return r;
-    void* ret = nullptr;
-    if (!il2::Invoke(m, inst, nullptr, &ret, r.msg)) return r;
+    void* car = nullptr;
+    if (!SelectedCar(car, r.msg)) return r;
+    if (!SetBoolProp(car, cfg::kSetUnlocked, true, r.msg)) return r;
+    if (!SetBoolProp(car, cfg::kSetPurchased, true, r.msg)) return r;
     r.ok = true;
     return r;
 }

@@ -1,7 +1,6 @@
 #pragma once
 // All build-specific names live here. Target: Highway Racer (RCC), Unity 2022.3.62f3, IL2CPP arm64.
-// Currency names verified against dump__2_.cs (2026-11-07 update): TOJGAMES.Economy classes unchanged.
-// Car-unlock verified against the same dump: HR_MainMenuHandler.UnlockAllCars() (global namespace).
+// Verified against dump__2_.cs (2026-11-07 update).
 namespace cfg {
 inline constexpr const char* kImage = "Assembly-CSharp.dll";
 
@@ -25,8 +24,10 @@ inline constexpr Entry kCurrencies[] = {
 };
 inline constexpr int kCount = sizeof(kCurrencies) / sizeof(kCurrencies[0]);
 
-// --- cars (global namespace HR_MainMenuHandler) ---
-inline constexpr const char* kMainMenuNs = "";
-inline constexpr const char* kMainMenuHandler = "HR_MainMenuHandler";
-inline constexpr const char* kUnlockAllCars = "UnlockAllCars";  // instance, 0 args, void
+// --- cars: TOJGAMES.CarsData (ScriptableObject, scene-independent) + TOJGAMES.Car ---
+inline constexpr const char* kCarsNs = "TOJGAMES";
+inline constexpr const char* kCarsData = "CarsData";
+inline constexpr const char* kGetSelectedCar = "GetPlayerSelectedCar";  // instance, 0 args -> Car
+inline constexpr const char* kSetUnlocked = "set_IsUnlocked";           // Car instance, (bool)
+inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car instance, (bool)
 }

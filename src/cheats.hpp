@@ -8,5 +8,5 @@ bool   Validate(std::string& err);           // checks every class/method the me
 Result GetBalance(Currency c);
 Result SetBalance(Currency c, int amount);
 Result Earn(Currency c, int amount);
-Result UnlockAllCars();                      // HR_MainMenuHandler.Instance.UnlockAllCars()
+Result BuyCar();                             // unlocks + purchases the car selected in the shop
 }

@@ -221,7 +221,7 @@ typedef void (^XPTabBuilder)(UIView* host);
     UIEdgeInsets sa = self.view.safeAreaInsets;
     _dim.frame = b;
 
-    CGFloat w = MIN(b.size.width - 24, 840);
+    CGFloat w = MIN(b.size.width - 24, 420);
     CGFloat h = MIN(b.size.height - sa.top - sa.bottom - 24, 460);
     CGAffineTransform t = _panel.transform;
     _panel.transform = CGAffineTransformIdentity;
@@ -470,7 +470,7 @@ typedef void (^XPTabBuilder)(UIView* host);
     UIButton* btn = [self pill:XL(_lang, @"cars.button") color:XP_ACCENT];
     btn.frame = CGRectMake(0, 102, W, 44);
     btn.titleLabel.font = XPFont(13, UIFontWeightHeavy);
-    [btn addTarget:self action:@selector(onUnlockCars) forControlEvents:UIControlEventTouchUpInside];
+    [btn addTarget:self action:@selector(onBuyCar) forControlEvents:UIControlEventTouchUpInside];
     [host addSubview:btn];
 
     _status = [self label:@"…" size:11 weight:UIFontWeightSemibold color:XP_ACCENT];
@@ -479,8 +479,8 @@ typedef void (^XPTabBuilder)(UIView* host);
     [host addSubview:_status];
 }
 
-- (void)onUnlockCars {
-    cheats::Result r = cheats::UnlockAllCars();
+- (void)onBuyCar {
+    cheats::Result r = cheats::BuyCar();
     [self report:r ok:XL(_lang, @"cars.ok")];
 }
 
