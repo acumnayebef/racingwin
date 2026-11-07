@@ -32,9 +32,9 @@ static NSDictionary<NSString*, NSArray<NSString*>*>* XStrings() {
             @"currency.setok":   @[ @"✓ баланс выставлен", @"✓ balance set", @"✓ تم ضبط الرصيد" ],
 
             @"cars.title": @[ @"МАШИНЫ", @"CARS", @"السيارات" ],
-            @"cars.hint":  @[ @"Разблокирует все машины в гараже через встроенный метод игры.",
-                               @"Unlocks every car in the garage via the game's own built-in method.",
-                               @"يفتح جميع السيارات في المرآب عبر وظيفة اللعبة المدمجة." ],
+            @"cars.hint":  @[ @"Разблокирует все машины через встроенный метод игры. Жми эту кнопку на главном экране, до захода в «Тачки» — иначе игра ещё не создала нужный объект.",
+                               @"Unlocks every car via the game's own built-in method. Press this on the main menu screen, before opening \"Cars\" — otherwise the game hasn't created the object yet.",
+                               @"يفتح جميع السيارات عبر وظيفة اللعبة المدمجة. اضغط هذا في الشاشة الرئيسية قبل فتح \"السيارات\"، وإلا فلم يُنشئ اللعبة الكائن المطلوب بعد." ],
             @"cars.button": @[ @"РАЗБЛОКИРОВАТЬ ВСЕ", @"UNLOCK ALL CARS", @"فتح كل السيارات" ],
             @"cars.ok":     @[ @"✓ все машины разблокированы", @"✓ all cars unlocked", @"✓ تم فتح كل السيارات" ],
 

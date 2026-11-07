@@ -221,7 +221,7 @@ typedef void (^XPTabBuilder)(UIView* host);
     UIEdgeInsets sa = self.view.safeAreaInsets;
     _dim.frame = b;
 
-    CGFloat w = MIN(b.size.width - 24, 420);
+    CGFloat w = MIN(b.size.width - 24, 840);
     CGFloat h = MIN(b.size.height - sa.top - sa.bottom - 24, 460);
     CGAffineTransform t = _panel.transform;
     _panel.transform = CGAffineTransformIdentity;
@@ -278,7 +278,8 @@ typedef void (^XPTabBuilder)(UIView* host);
         self->_dim.alpha = 1;
         self->_panel.alpha = 1;
         self->_panel.transform = CGAffineTransformIdentity;
-    } completion:nil];
+        self->_fab.alpha = 0;
+    } completion:^(BOOL) { self->_fab.hidden = YES; }];
     [self refresh];
 }
 
@@ -286,10 +287,13 @@ typedef void (^XPTabBuilder)(UIView* host);
     if (!_open) return;
     _open = NO;
     [self.view endEditing:YES];
+    _fab.hidden = NO;
+    _fab.alpha = 0;
     [UIView animateWithDuration:0.18 animations:^{
         self->_dim.alpha = 0;
         self->_panel.alpha = 0;
         self->_panel.transform = CGAffineTransformMakeScale(0.92, 0.92);
+        self->_fab.alpha = 1;
     } completion:^(BOOL) {
         self->_dim.hidden = YES;
         self->_panel.hidden = YES;
