@@ -89,6 +89,23 @@ Result BuyCar() {
     if (!SetBoolProp(car, cfg::kSetUnlocked, true, r.msg)) return r;
     if (!SetBoolProp(car, cfg::kSetPurchased, true, r.msg)) return r;
     r.ok = true;
+
+    // Best-effort live refresh: if the shop list screen (CarsListManager) is open right now,
+    // rebuild it so the car shows as owned without leaving the screen. Not finding it, or the
+    // refresh call failing, does not undo the purchase above — it just means a manual reopen
+    // of the shop screen is needed to see it.
+    std::string refreshErr;
+    void* listClass = il2::FindClass(cfg::kCarsListNs, cfg::kCarsListManager, refreshErr);
+    if (listClass) {
+        void* inst = il2::FindActiveObject(listClass, refreshErr);
+        if (inst) {
+            void* upd = il2::FindMethod(il2::ObjectClass(inst), cfg::kUpdateList, 0, refreshErr);
+            if (upd) {
+                void* ret = nullptr;
+                if (il2::Invoke(upd, inst, nullptr, &ret, refreshErr)) r.value = 1;  // live refresh done
+            }
+        }
+    }
     return r;
 }
 }  // namespace cheats

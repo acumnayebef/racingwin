@@ -7,4 +7,8 @@ void* FindMethod(void* klass, const char* name, int argc, std::string& err);  //
 void* ObjectClass(void* obj);
 bool  Invoke(void* method, void* obj, void** args, void** ret, std::string& err);
 int   UnboxInt(void* boxed);
+
+// UnityEngine.Object.FindObjectOfType(Type) — returns the active scene instance of `klass`,
+// or nullptr if none exists right now (e.g. the matching screen isn't open). Not an error either way.
+void* FindActiveObject(void* klass, std::string& err);
 }

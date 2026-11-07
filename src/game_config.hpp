@@ -30,4 +30,9 @@ inline constexpr const char* kCarsData = "CarsData";
 inline constexpr const char* kGetSelectedCar = "GetPlayerSelectedCar";  // instance, 0 args -> Car
 inline constexpr const char* kSetUnlocked = "set_IsUnlocked";           // Car instance, (bool)
 inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car instance, (bool)
+
+// --- shop list live refresh (best-effort; only present while the shop screen is open) ---
+inline constexpr const char* kCarsListNs = "";
+inline constexpr const char* kCarsListManager = "CarsListManager";
+inline constexpr const char* kUpdateList = "UpdateList";  // instance, 0 args
 }

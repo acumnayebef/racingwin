@@ -481,7 +481,8 @@ typedef void (^XPTabBuilder)(UIView* host);
 
 - (void)onBuyCar {
     cheats::Result r = cheats::BuyCar();
-    [self report:r ok:XL(_lang, @"cars.ok")];
+    NSString* okKey = (r.value == 1) ? @"cars.ok.refreshed" : @"cars.ok.reopen";
+    [self report:r ok:XL(_lang, okKey)];
 }
 
 #pragma mark - creators tab

@@ -36,7 +36,11 @@ static NSDictionary<NSString*, NSArray<NSString*>*>* XStrings() {
                                @"Open any car's page in the shop (so the game marks it as selected), then press the button — it will be purchased and appear in the garage.",
                                @"افتح صفحة أي سيارة في المتجر (ليتم تحديدها في اللعبة)، ثم اضغط الزر — سيتم شراؤها وستظهر في المرآب." ],
             @"cars.button": @[ @"КУПИТЬ МАШИНУ", @"BUY CAR", @"شراء السيارة" ],
-            @"cars.ok":     @[ @"✓ машина куплена и в гараже", @"✓ car purchased and in garage", @"✓ تم شراء السيارة وهي في المرآب" ],
+            @"cars.ok.refreshed": @[ @"✓ куплена — список обновлён", @"✓ purchased — list refreshed",
+                                       @"✓ تم الشراء — تم تحديث القائمة" ],
+            @"cars.ok.reopen":    @[ @"✓ куплена — выйди из «Тачки» и зайди снова, чтобы увидеть",
+                                       @"✓ purchased — leave and reopen \"Cars\" to see it",
+                                       @"✓ تم الشراء — أغلق \"السيارات\" وافتحها مجددًا لرؤيتها" ],
 
             @"creators.label":  @[ @"TELEGRAM-КАНАЛ", @"TELEGRAM CHANNEL", @"قناة تيليجرام" ],
             @"creators.blurb":  @[ @"Официальный канал автора.", @"Official channel of the author.",
