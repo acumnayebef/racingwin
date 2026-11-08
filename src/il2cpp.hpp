@@ -16,4 +16,5 @@ void* FindActiveObject(void* klass, std::string& err);
 // or when a property's backing field is a separate compiler-generated field from a same-named
 // public field, so writing one does not necessarily update the other.
 bool SetBoolField(void* obj, const char* fieldName, bool value, std::string& err);
+bool GetIntField(void* obj, const char* fieldName, int& out, std::string& err);
 }

@@ -25,6 +25,7 @@ struct {
     void*        (*type_get_object)(const void*);   // const Il2CppType* -> System.Type object
     void*        (*class_get_field_from_name)(void*, const char*);
     void         (*field_set_value)(void*, void*, void*);
+    void         (*field_get_value)(void*, void*, void*);
     void*        (*class_get_methods)(void*, void**);  // Il2CppClass*, iter -> MethodInfo* (or null when done)
     const char*  (*method_get_name)(void*);
     uint32_t     (*method_get_param_count)(void*);
@@ -80,6 +81,7 @@ bool Init(std::string& err) {
     ok = Load(A.type_get_object, "il2cpp_type_get_object", e) && ok;
     ok = Load(A.class_get_field_from_name, "il2cpp_class_get_field_from_name", e) && ok;
     ok = Load(A.field_set_value, "il2cpp_field_set_value", e) && ok;
+    ok = Load(A.field_get_value, "il2cpp_field_get_value", e) && ok;
     ok = Load(A.class_get_methods, "il2cpp_class_get_methods", e) && ok;
     ok = Load(A.method_get_name, "il2cpp_method_get_name", e) && ok;
     ok = Load(A.method_get_param_count, "il2cpp_method_get_param_count", e) && ok;
@@ -158,6 +160,18 @@ bool SetBoolField(void* obj, const char* fieldName, bool value, std::string& err
     if (!field) { err = std::string("field not found: ") + fieldName; return false; }
     bool v = value;
     A.field_set_value(obj, field, &v);
+    return true;
+}
+
+bool GetIntField(void* obj, const char* fieldName, int& out, std::string& err) {
+    if (!Init(err)) return false;
+    if (!obj) { err = "null object"; return false; }
+    void* klass = A.object_get_class(obj);
+    void* field = A.class_get_field_from_name(klass, fieldName);
+    if (!field) { err = std::string("field not found: ") + fieldName; return false; }
+    int v = 0;
+    A.field_get_value(obj, field, &v);
+    out = v;
     return true;
 }
 

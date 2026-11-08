@@ -27,7 +27,7 @@ inline constexpr int kCount = sizeof(kCurrencies) / sizeof(kCurrencies[0]);
 // --- cars: TOJGAMES.CarsData (ScriptableObject, scene-independent) + TOJGAMES.Car ---
 inline constexpr const char* kCarsNs = "TOJGAMES";
 inline constexpr const char* kCarsData = "CarsData";
-inline constexpr const char* kGetSelectedCar = "GetPlayerSelectedCar";  // instance, 0 args -> Car
+inline constexpr const char* kGetCarByID = "GetCarByID";                // instance, (int) -> Car
 inline constexpr const char* kSetUnlocked = "set_IsUnlocked";           // Car instance, (bool) property
 inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car instance, (bool) property
 // Car also has plain public fields with the same meaning (offsets 0x78/0x79 in the dump) that may
@@ -36,8 +36,12 @@ inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car i
 inline constexpr const char* kFieldUnlocked = "Unlocked";
 inline constexpr const char* kFieldPurchased = "Purchased";
 
-// --- shop list live refresh (best-effort; only present while the shop screen is open) ---
+// --- shop list screen: CarsListManager (global namespace, MonoBehaviour, only alive while the
+// "Тачки"/shop screen is open). currentSelectedItemID is the car currently open in THAT screen —
+// this is what "buy the car I have open" must read, not CarsData.PlayerSelectedCarID (which is a
+// different concept: the car the player currently drives, unrelated to shop browsing). ---
 inline constexpr const char* kCarsListNs = "";
 inline constexpr const char* kCarsListManager = "CarsListManager";
+inline constexpr const char* kFieldSelectedItemID = "currentSelectedItemID";  // public int field
 inline constexpr const char* kUpdateList = "UpdateList";  // instance, 0 args
 }
