@@ -1,5 +1,6 @@
 #include "il2cpp.hpp"
 #include "game_config.hpp"
+#include <cstdint>
 #include <cstring>
 #include <dlfcn.h>
 #if defined(__APPLE__)
@@ -22,6 +23,13 @@ struct {
     const char*  (*class_get_name)(void*);
     const void*  (*class_get_type)(void*);          // Il2CppClass* -> const Il2CppType*
     void*        (*type_get_object)(const void*);   // const Il2CppType* -> System.Type object
+    void*        (*class_get_field_from_name)(void*, const char*);
+    void         (*field_set_value)(void*, void*, void*);
+    void*        (*class_get_methods)(void*, void**);  // Il2CppClass*, iter -> MethodInfo* (or null when done)
+    const char*  (*method_get_name)(void*);
+    uint32_t     (*method_get_param_count)(void*);
+    const void*  (*method_get_param)(void*, uint32_t);  // -> const Il2CppType*
+    const char*  (*type_get_name)(const void*);
 } A;
 
 void* g_image = nullptr;       // Assembly-CSharp.dll
@@ -70,6 +78,13 @@ bool Init(std::string& err) {
     ok = Load(A.class_get_name, "il2cpp_class_get_name", e) && ok;
     ok = Load(A.class_get_type, "il2cpp_class_get_type", e) && ok;
     ok = Load(A.type_get_object, "il2cpp_type_get_object", e) && ok;
+    ok = Load(A.class_get_field_from_name, "il2cpp_class_get_field_from_name", e) && ok;
+    ok = Load(A.field_set_value, "il2cpp_field_set_value", e) && ok;
+    ok = Load(A.class_get_methods, "il2cpp_class_get_methods", e) && ok;
+    ok = Load(A.method_get_name, "il2cpp_method_get_name", e) && ok;
+    ok = Load(A.method_get_param_count, "il2cpp_method_get_param_count", e) && ok;
+    ok = Load(A.method_get_param, "il2cpp_method_get_param", e) && ok;
+    ok = Load(A.type_get_name, "il2cpp_type_get_name", e) && ok;
     if (!ok) { err = e; return false; }
 
     void* dom = A.domain_get();
@@ -96,13 +111,33 @@ void* FindClass(const char* ns, const char* name, std::string& err) {
     return k;
 }
 
+namespace {
+// UnityEngine.Object.FindObjectOfType has several overloads with argc==1 (the non-generic
+// (Type) overload we want, and the generic <T>(bool includeInactive) overload) — matching by
+// name+argc alone via il2cpp_class_get_method_from_name is ambiguous and can silently grab the
+// wrong one. Disambiguate by checking the single parameter's type name.
+void* FindMethodByParamType(void* klass, const char* name, const char* paramTypeName, std::string& err) {
+    void* iter = nullptr;
+    void* m;
+    while ((m = A.class_get_methods(klass, &iter)) != nullptr) {
+        if (std::strcmp(A.method_get_name(m), name) != 0) continue;
+        if (A.method_get_param_count(m) != 1) continue;
+        const void* pt = A.method_get_param(m, 0);
+        const char* ptName = pt ? A.type_get_name(pt) : nullptr;
+        if (ptName && std::strcmp(ptName, paramTypeName) == 0) return m;
+    }
+    err = std::string("method not found: ") + name + "(" + paramTypeName + ")";
+    return nullptr;
+}
+}  // namespace
+
 void* FindActiveObject(void* klass, std::string& err) {
     if (!Init(err)) return nullptr;
     if (!g_coreImage) { err = "UnityEngine.CoreModule.dll not loaded"; return nullptr; }
     void* objClass = A.class_from_name(g_coreImage, "UnityEngine", "Object");
     if (!objClass) { err = "class not found: UnityEngine.Object"; return nullptr; }
-    void* find = A.class_get_method_from_name(objClass, "FindObjectOfType", 1);
-    if (!find) { err = "method not found: Object.FindObjectOfType(Type)/1"; return nullptr; }
+    void* find = FindMethodByParamType(objClass, "FindObjectOfType", "Type", err);
+    if (!find) return nullptr;
 
     const void* type = A.class_get_type(klass);
     if (!type) { err = "il2cpp_class_get_type failed"; return nullptr; }
@@ -113,6 +148,17 @@ void* FindActiveObject(void* klass, std::string& err) {
     void* ret = nullptr;
     if (!Invoke(find, nullptr, args, &ret, err)) return nullptr;
     return ret;  // may legitimately be nullptr: no active instance right now
+}
+
+bool SetBoolField(void* obj, const char* fieldName, bool value, std::string& err) {
+    if (!Init(err)) return false;
+    if (!obj) { err = "null object"; return false; }
+    void* klass = A.object_get_class(obj);
+    void* field = A.class_get_field_from_name(klass, fieldName);
+    if (!field) { err = std::string("field not found: ") + fieldName; return false; }
+    bool v = value;
+    A.field_set_value(obj, field, &v);
+    return true;
 }
 
 void* FindMethod(void* klass, const char* name, int argc, std::string& err) {

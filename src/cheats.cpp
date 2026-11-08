@@ -88,6 +88,11 @@ Result BuyCar() {
     if (!SelectedCar(car, r.msg)) return r;
     if (!SetBoolProp(car, cfg::kSetUnlocked, true, r.msg)) return r;
     if (!SetBoolProp(car, cfg::kSetPurchased, true, r.msg)) return r;
+    // Belt-and-braces: also write the plain fields directly, in case the property setters above
+    // write to a different backing store than what the shop/garage UI actually reads from.
+    std::string fieldErr;
+    il2::SetBoolField(car, cfg::kFieldUnlocked, true, fieldErr);
+    il2::SetBoolField(car, cfg::kFieldPurchased, true, fieldErr);
     r.ok = true;
 
     // Best-effort live refresh: if the shop list screen (CarsListManager) is open right now,

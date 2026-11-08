@@ -28,8 +28,13 @@ inline constexpr int kCount = sizeof(kCurrencies) / sizeof(kCurrencies[0]);
 inline constexpr const char* kCarsNs = "TOJGAMES";
 inline constexpr const char* kCarsData = "CarsData";
 inline constexpr const char* kGetSelectedCar = "GetPlayerSelectedCar";  // instance, 0 args -> Car
-inline constexpr const char* kSetUnlocked = "set_IsUnlocked";           // Car instance, (bool)
-inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car instance, (bool)
+inline constexpr const char* kSetUnlocked = "set_IsUnlocked";           // Car instance, (bool) property
+inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car instance, (bool) property
+// Car also has plain public fields with the same meaning (offsets 0x78/0x79 in the dump) that may
+// have a separate compiler-generated backing store from the IsUnlocked/IsPurchased properties above —
+// written directly as a safety net in case the game's UI reads these instead of the properties.
+inline constexpr const char* kFieldUnlocked = "Unlocked";
+inline constexpr const char* kFieldPurchased = "Purchased";
 
 // --- shop list live refresh (best-effort; only present while the shop screen is open) ---
 inline constexpr const char* kCarsListNs = "";
