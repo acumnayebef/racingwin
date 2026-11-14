@@ -126,7 +126,10 @@ void* FindMethodByParamType(void* klass, const char* name, const char* paramType
         if (A.method_get_param_count(m) != 1) continue;
         const void* pt = A.method_get_param(m, 0);
         const char* ptName = pt ? A.type_get_name(pt) : nullptr;
-        if (ptName && std::strcmp(ptName, paramTypeName) == 0) return m;
+        // Substring match, not exact: il2cpp_type_get_name's format (bare "Type" vs. namespaced
+        // "System.Type") isn't something we can confirm without the real binary, so match loosely —
+        // this still can't collide with "Boolean"/"System.Boolean", the only other candidate here.
+        if (ptName && std::strstr(ptName, paramTypeName) != nullptr) return m;
     }
     err = std::string("method not found: ") + name + "(" + paramTypeName + ")";
     return nullptr;
@@ -170,6 +173,18 @@ bool GetIntField(void* obj, const char* fieldName, int& out, std::string& err) {
     void* field = A.class_get_field_from_name(klass, fieldName);
     if (!field) { err = std::string("field not found: ") + fieldName; return false; }
     int v = 0;
+    A.field_get_value(obj, field, &v);
+    out = v;
+    return true;
+}
+
+bool GetObjectField(void* obj, const char* fieldName, void*& out, std::string& err) {
+    if (!Init(err)) return false;
+    if (!obj) { err = "null object"; return false; }
+    void* klass = A.object_get_class(obj);
+    void* field = A.class_get_field_from_name(klass, fieldName);
+    if (!field) { err = std::string("field not found: ") + fieldName; return false; }
+    void* v = nullptr;
     A.field_get_value(obj, field, &v);
     out = v;
     return true;

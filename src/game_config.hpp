@@ -36,12 +36,13 @@ inline constexpr const char* kSetPurchased = "set_IsPurchased";         // Car i
 inline constexpr const char* kFieldUnlocked = "Unlocked";
 inline constexpr const char* kFieldPurchased = "Purchased";
 
-// --- shop list screen: CarsListManager (global namespace, MonoBehaviour, only alive while the
-// "Тачки"/shop screen is open). currentSelectedItemID is the car currently open in THAT screen —
-// this is what "buy the car I have open" must read, not CarsData.PlayerSelectedCarID (which is a
-// different concept: the car the player currently drives, unrelated to shop browsing). ---
+// --- the actual car-detail/buy screen: CarSelectionScreen (global namespace, MonoBehaviour,
+// only alive while the "Тачки" screen is open). activeCar is a direct reference to the Car the
+// screen is currently showing/selling — this is the car "open" on screen, not
+// CarsData.PlayerSelectedCarID (a different concept: the car the player currently drives).
+// UpdateView() is the screen's own refresh for its price/status/buy-button UI. ---
 inline constexpr const char* kCarsListNs = "";
-inline constexpr const char* kCarsListManager = "CarsListManager";
-inline constexpr const char* kFieldSelectedItemID = "currentSelectedItemID";  // public int field
-inline constexpr const char* kUpdateList = "UpdateList";  // instance, 0 args
+inline constexpr const char* kCarSelectionScreen = "CarSelectionScreen";
+inline constexpr const char* kFieldActiveCar = "activeCar";  // private Car field (still readable via il2cpp)
+inline constexpr const char* kUpdateView = "UpdateView";     // public instance, 0 args
 }

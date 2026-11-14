@@ -17,4 +17,5 @@ void* FindActiveObject(void* klass, std::string& err);
 // public field, so writing one does not necessarily update the other.
 bool SetBoolField(void* obj, const char* fieldName, bool value, std::string& err);
 bool GetIntField(void* obj, const char* fieldName, int& out, std::string& err);
+bool GetObjectField(void* obj, const char* fieldName, void*& out, std::string& err);  // reference-type field
 }

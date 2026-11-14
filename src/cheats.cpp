@@ -47,32 +47,25 @@ bool SetBoolProp(void* obj, const char* method, bool value, std::string& err) {
     return il2::Invoke(m, obj, args, &ret, err);
 }
 
-// The car the shop screen currently has open — NOT CarsData.PlayerSelectedCarID, which is a
-// different concept (the car the player drives). Requires the shop screen (CarsListManager) to
-// be on screen right now, which matches how this feature is meant to be used: open a car's page
-// in the shop, then press the button.
-bool OpenShopCar(void*& car, void*& listInst, std::string& err) {
-    void* listClass = il2::FindClass(cfg::kCarsListNs, cfg::kCarsListManager, err);
-    if (!listClass) return false;
-    listInst = il2::FindActiveObject(listClass, err);
-    if (!listInst) { err = "shop screen (\"Тачки\") is not open — open a car's page there first"; return false; }
+// The car the "Тачки" screen is currently showing/selling — read directly off
+// CarSelectionScreen's own `activeCar` field. NOT CarsData.PlayerSelectedCarID (a different
+// concept: the car the player drives). Requires that screen to be open right now, matching how
+// this feature is meant to be used: open a car's page in the shop, then press the button.
+bool OpenShopCar(void*& car, void*& screenInst, std::string& err) {
+    void* screenClass = il2::FindClass(cfg::kCarsListNs, cfg::kCarSelectionScreen, err);
+    if (!screenClass) return false;
+    screenInst = il2::FindActiveObject(screenClass, err);
+    if (!screenInst) {
+        // FindActiveObject leaves err empty when it genuinely just found no instance (not an
+        // error); only then show the generic hint. If err is non-empty, something upstream
+        // actually broke (missing export/method/exception) — surface that real message instead
+        // of masking it, so a wrong diagnosis here doesn't send the next fix down the wrong path.
+        if (err.empty()) err = "shop screen (\"Тачки\") is not open — open a car's page there first";
+        return false;
+    }
 
-    int carId = 0;
-    if (!il2::GetIntField(listInst, cfg::kFieldSelectedItemID, carId, err)) return false;
-
-    void* ck = il2::FindClass(cfg::kCarsNs, cfg::kCarsData, err);
-    if (!ck) return false;
-    void* gi = il2::FindMethod(ck, cfg::kGetInstance, 0, err);
-    if (!gi) return false;
-    void* data = nullptr;
-    if (!il2::Invoke(gi, nullptr, nullptr, &data, err)) return false;
-    if (!data) { err = "CarsData.Instance is null"; return false; }
-
-    void* gc = il2::FindMethod(il2::ObjectClass(data), cfg::kGetCarByID, 1, err);
-    if (!gc) return false;
-    void* args[1] = {&carId};
-    if (!il2::Invoke(gc, data, args, &car, err)) return false;
-    if (!car) { err = "GetCarByID returned null for id " + std::to_string(carId); return false; }
+    if (!il2::GetObjectField(screenInst, cfg::kFieldActiveCar, car, err)) return false;
+    if (!car) { err = "no car open on screen (activeCar is null) — open a car's page first"; return false; }
     return true;
 }
 }  // namespace
@@ -87,11 +80,7 @@ bool Validate(std::string& err) {
     if (!base || !il2::FindMethod(base, cfg::kEarn, 1, err) ||
         !il2::FindMethod(base, cfg::kSet, 1, err) || !il2::FindMethod(base, cfg::kGet, 0, err))
         return false;
-    void* ck = il2::FindClass(cfg::kCarsNs, cfg::kCarsData, err);
-    if (!ck || !il2::FindMethod(ck, cfg::kGetInstance, 0, err) ||
-        !il2::FindMethod(ck, cfg::kGetCarByID, 1, err))
-        return false;
-    return il2::FindClass(cfg::kCarsListNs, cfg::kCarsListManager, err) != nullptr;
+    return il2::FindClass(cfg::kCarsListNs, cfg::kCarSelectionScreen, err) != nullptr;
 }
 
 Result GetBalance(Currency c)            { return Run(c, cfg::kGet, 0, 0); }
@@ -101,24 +90,24 @@ Result Earn(Currency c, int value)       { return Run(c, cfg::kEarn, 1, value); 
 Result BuyCar() {
     Result r;
     void* car = nullptr;
-    void* listInst = nullptr;
-    if (!OpenShopCar(car, listInst, r.msg)) return r;
+    void* screenInst = nullptr;
+    if (!OpenShopCar(car, screenInst, r.msg)) return r;
     if (!SetBoolProp(car, cfg::kSetUnlocked, true, r.msg)) return r;
     if (!SetBoolProp(car, cfg::kSetPurchased, true, r.msg)) return r;
     // Belt-and-braces: also write the plain fields directly, in case the property setters above
-    // write to a different backing store than what the shop/garage UI actually reads from.
+    // write to a different backing store than what the screen's own UI actually reads from.
     std::string fieldErr;
     il2::SetBoolField(car, cfg::kFieldUnlocked, true, fieldErr);
     il2::SetBoolField(car, cfg::kFieldPurchased, true, fieldErr);
     r.ok = true;
 
-    // listInst is already the live shop screen (we just read its currentSelectedItemID from it),
-    // so refresh it directly — no second FindActiveObject lookup needed.
+    // screenInst is the live CarSelectionScreen we just read activeCar from — call its own
+    // UpdateView() so the price/status/buy-button UI on THIS screen refreshes immediately.
     std::string refreshErr;
-    void* upd = il2::FindMethod(il2::ObjectClass(listInst), cfg::kUpdateList, 0, refreshErr);
+    void* upd = il2::FindMethod(il2::ObjectClass(screenInst), cfg::kUpdateView, 0, refreshErr);
     if (upd) {
         void* ret = nullptr;
-        if (il2::Invoke(upd, listInst, nullptr, &ret, refreshErr)) r.value = 1;  // live refresh done
+        if (il2::Invoke(upd, screenInst, nullptr, &ret, refreshErr)) r.value = 1;  // live refresh done
     }
     return r;
 }
